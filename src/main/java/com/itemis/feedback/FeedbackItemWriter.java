@@ -32,7 +32,7 @@ public class FeedbackItemWriter implements ItemWriter<Feedback> {
 
         // Dateipfad zum Schreiben der Ausgabe festlegen
         // Verwende ein dynamisches File-Objekt, um den Pfad einfacher zu verwalten
-        File outputFile = new File("resources/output_feedback.csv");
+        File outputFile = new File("resources/bad_feedback.csv");
 
         itemWriter =  new FlatFileItemWriterBuilder<Feedback>()
                 .name("feedbackItemWriter")
