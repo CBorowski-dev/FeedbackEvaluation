@@ -1,7 +1,5 @@
 package com.itemis.feedback;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
@@ -19,24 +17,14 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 
 @Configuration
 public class BatchConfiguration {
 
-    private static class FilesWrapper {
-        Logger logger = LoggerFactory.getLogger(FilesWrapper.class);
-        public void move(java.nio.file.Path source, java.nio.file.Path target) throws IOException {
-            logger.info(" ==> Move feedback.csv file to old directory");
-            Files.move(source, target);
-        }
-    }
-
     @Bean
     public Step processFeedbackStep(JobRepository jobRepository, DataSourceTransactionManager transactionManager,
-                      FeedbackItemReader reader, FeedbackProcessor processor, FeedbackItemWriter writer, BadFeedbackStepExecutionListener listener) {
+                                    FeedbackItemReader reader, FeedbackProcessor processor, FeedbackItemWriter writer, BadFeedbackStepExecutionListener listener) {
         return new StepBuilder("processFeedbackStep", jobRepository)
                 .<Feedback, Feedback>chunk(3, transactionManager)
                 .reader(reader)
@@ -52,7 +40,7 @@ public class BatchConfiguration {
 
         adapter.setTargetObject(new FilesWrapper());
         adapter.setTargetMethod("move");
-        adapter.setArguments(new Object[]{ Paths.get("resources/feedback.csv"), Paths.get("resources/old/feedback.csv") });
+        adapter.setArguments(new Object[]{Paths.get("resources/feedback.csv"), Paths.get("resources/old/feedback.csv")});
 
         return adapter;
     }
