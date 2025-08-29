@@ -45,7 +45,7 @@ public class FeedbackItemReader implements ItemReader<Feedback> {
 
     @Override
     public Feedback read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
-        logger.info(" ==> Reading one feedback");
+        logger.info(" ==> Reading one feedback line");
         return itemReader.read();
     }
 }
