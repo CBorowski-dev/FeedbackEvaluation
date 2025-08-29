@@ -1,5 +1,7 @@
 package com.itemis.feedback;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ExecutionContext;
 import org.springframework.batch.item.ItemWriter;
@@ -15,6 +17,8 @@ import java.io.File;
 public class FeedbackItemWriter implements ItemWriter<Feedback> {
 
     private FlatFileItemWriter<Feedback> itemWriter;
+
+    Logger logger = LoggerFactory.getLogger(FeedbackItemWriter.class);
 
     public FeedbackItemWriter() {
         super();
@@ -47,6 +51,7 @@ public class FeedbackItemWriter implements ItemWriter<Feedback> {
 
     @Override
     public void write(Chunk<? extends Feedback> chunk) throws Exception {
+        logger.info(" ==> Writing chunk of size: " + chunk.size());
         itemWriter.write(chunk);
     }
 }

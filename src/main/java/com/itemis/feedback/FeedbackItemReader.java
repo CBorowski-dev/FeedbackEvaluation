@@ -1,5 +1,7 @@
 package com.itemis.feedback;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.item.*;
 import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.builder.FlatFileItemReaderBuilder;
@@ -10,6 +12,8 @@ import org.springframework.core.io.FileSystemResource;
 public class FeedbackItemReader implements ItemReader<Feedback> {
 
     private FlatFileItemReader<Feedback> itemReader;
+
+    Logger logger = LoggerFactory.getLogger(FeedbackItemReader.class);
 
     public FeedbackItemReader() {
         super();
@@ -41,6 +45,7 @@ public class FeedbackItemReader implements ItemReader<Feedback> {
 
     @Override
     public Feedback read() throws Exception, UnexpectedInputException, ParseException, NonTransientResourceException {
+        logger.info(" ==> Reading one feedback");
         return itemReader.read();
     }
 }

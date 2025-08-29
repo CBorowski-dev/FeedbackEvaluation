@@ -1,6 +1,7 @@
 package com.itemis.feedback;
 
-import org.springframework.batch.core.StepExecutionListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.job.builder.FlowBuilder;
 import org.springframework.batch.core.job.flow.Flow;
 import org.springframework.batch.core.job.flow.support.SimpleFlow;
@@ -26,16 +27,17 @@ import java.nio.file.Paths;
 public class BatchConfiguration {
 
     private static class FilesWrapper {
+        Logger logger = LoggerFactory.getLogger(FilesWrapper.class);
         public void move(java.nio.file.Path source, java.nio.file.Path target) throws IOException {
-            System.out.println(" ==> Move file");
+            logger.info(" ==> Move feedback.csv file to old directory");
             Files.move(source, target);
         }
     }
 
     @Bean
-    public Step step1(JobRepository jobRepository, DataSourceTransactionManager transactionManager,
+    public Step processFeedbackStep(JobRepository jobRepository, DataSourceTransactionManager transactionManager,
                       FeedbackItemReader reader, FeedbackProcessor processor, FeedbackItemWriter writer, BadFeedbackStepExecutionListener listener) {
-        return new StepBuilder("step1", jobRepository)
+        return new StepBuilder("processFeedbackStep", jobRepository)
                 .<Feedback, Feedback>chunk(3, transactionManager)
                 .reader(reader)
                 .processor(processor)
@@ -56,55 +58,62 @@ public class BatchConfiguration {
     }
 
     @Bean
-    public Step step2(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
-        return new StepBuilder("step2", jobRepository)
+    public Step moveFileStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+        return new StepBuilder("moveFileStep", jobRepository)
                 .tasklet(moveFileTasklet(), transactionManager)
                 .build();
     }
 
     @Bean
-    public Step step3(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+    public Step sendEMailToSupportStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
         SendEMailTasklet tasklet = new SendEMailTasklet();
         tasklet.setBadFeedbackFile(new File("resources/old/feedback.csv"));
         tasklet.setEMailAddress("support@itemis.com");
-        return new StepBuilder("step3", jobRepository)
+        return new StepBuilder("sendEMailToSupportStep", jobRepository)
                 .tasklet(tasklet, transactionManager)
                 .build();
     }
 
     @Bean
-    public Step step4(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+    public Step sendEMailToDevelopmentStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
         SendEMailTasklet tasklet = new SendEMailTasklet();
         tasklet.setBadFeedbackFile(new File("resources/old/feedback.csv"));
         tasklet.setEMailAddress("product.development@itemis.com");
-        return new StepBuilder("step4", jobRepository)
+        return new StepBuilder("sendEMailToDevelopmentStep", jobRepository)
                 .tasklet(tasklet, transactionManager)
                 .build();
     }
 
     @Bean
-    public Flow flow1(Step step3) {
+    public Flow flow1(Step sendEMailToSupportStep) {
         return new FlowBuilder<SimpleFlow>("flow1")
-                .start(step3)
+                .start(sendEMailToSupportStep)
                 .build();
     }
 
     @Bean
-    public Flow flow2(Step step4) {
+    public Flow flow2(Step sendEMailToDevelopmentStep) {
         return new FlowBuilder<SimpleFlow>("flow2")
-                .start(step4)
+                .start(sendEMailToDevelopmentStep)
                 .build();
     }
 
     @Bean
-    public Job feedbackJob(JobRepository jobRepository, Step step1, Step step2, Flow flow1, Flow flow2, JobCompletionNotificationListener listener) {
+    public Flow splitFlow(Flow flow1, Flow flow2, Step moveFileStep) {
+        return new FlowBuilder<SimpleFlow>("splitFlow")
+                .split(new SimpleAsyncTaskExecutor())
+                .add(flow1, flow2)
+                .next(moveFileStep)
+                .build();
+    }
+
+    @Bean
+    public Job feedbackJob(JobRepository jobRepository, Step processFeedbackStep, Step moveFileStep, Flow splitFlow, JobCompletionNotificationListener listener) {
         return new JobBuilder("feedbackJob", jobRepository)
                 .listener(listener)
-                .start(step1)
-                .on("COMPLETED_WITH_BAD_FEEDBACK").to(flow1)
-                .split(new SimpleAsyncTaskExecutor())
-                .add(flow2)
-                .next(step2)
+                .start(processFeedbackStep)
+                .on("COMPLETED_WITH_BAD_FEEDBACK").to(splitFlow)
+                .from(processFeedbackStep).on("COMPLETED").to(moveFileStep)
                 .end()
                 .build();
     }
