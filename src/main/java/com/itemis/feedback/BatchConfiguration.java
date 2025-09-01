@@ -40,7 +40,7 @@ public class BatchConfiguration {
 
         adapter.setTargetObject(new FilesWrapper());
         adapter.setTargetMethod("move");
-        adapter.setArguments(new Object[]{Paths.get("resources/feedback.csv"), Paths.get("resources/old/feedback.csv")});
+        adapter.setArguments(new Object[]{Paths.get("resources/feedback.csv"), Paths.get("resources/processed/feedback.csv")});
 
         return adapter;
     }
@@ -55,7 +55,7 @@ public class BatchConfiguration {
     @Bean
     public Step sendEMailToSupportStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
         SendEMailTasklet tasklet = new SendEMailTasklet();
-        tasklet.setBadFeedbackFile(new File("resources/old/feedback.csv"));
+        tasklet.setBadFeedbackFile(new File("resources/processed/feedback.csv"));
         tasklet.setEMailAddress("support@itemis.com");
         return new StepBuilder("sendEMailToSupportStep", jobRepository)
                 .tasklet(tasklet, transactionManager)
@@ -65,7 +65,7 @@ public class BatchConfiguration {
     @Bean
     public Step sendEMailToDevelopmentStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
         SendEMailTasklet tasklet = new SendEMailTasklet();
-        tasklet.setBadFeedbackFile(new File("resources/old/feedback.csv"));
+        tasklet.setBadFeedbackFile(new File("resources/processed/feedback.csv"));
         tasklet.setEMailAddress("product.development@itemis.com");
         return new StepBuilder("sendEMailToDevelopmentStep", jobRepository)
                 .tasklet(tasklet, transactionManager)

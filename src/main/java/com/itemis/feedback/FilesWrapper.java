@@ -11,7 +11,7 @@ public class FilesWrapper {
     Logger logger = LoggerFactory.getLogger(FilesWrapper.class);
 
     public void move(java.nio.file.Path source, java.nio.file.Path target) throws IOException {
-        logger.info(" ==> Move feedback.csv file to old directory");
+        logger.info(" ==> Move feedback.csv file to processed directory");
         Files.move(source, target);
     }
 

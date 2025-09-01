@@ -17,6 +17,7 @@ import java.io.File;
 public class FeedbackItemWriter implements ItemWriter<Feedback> {
 
     private FlatFileItemWriter<Feedback> itemWriter;
+    private Boolean isFileOpen = false;
 
     Logger logger = LoggerFactory.getLogger(FeedbackItemWriter.class);
 
@@ -46,12 +47,17 @@ public class FeedbackItemWriter implements ItemWriter<Feedback> {
                 .append(false)
                 .headerCallback(writer -> writer.write("ID;Product_ID;Date;Stars;Feedback"))
                 .build();
-        itemWriter.open(new ExecutionContext());
     }
 
     @Override
     public void write(Chunk<? extends Feedback> chunk) throws Exception {
-        logger.info(" ==> Writing chunk of size: " + chunk.size());
-        itemWriter.write(chunk);
+        if (!chunk.isEmpty()) {
+            if (!isFileOpen) {
+                itemWriter.open(new ExecutionContext());
+                isFileOpen = true;
+            }
+            logger.info(" ==> Writing chunk of size: " + chunk.size());
+            itemWriter.write(chunk);
+        }
     }
 }

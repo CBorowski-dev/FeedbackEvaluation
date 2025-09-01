@@ -20,7 +20,7 @@ public class SendEMailTasklet implements Tasklet {
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
         logger.info(" ==> Sending eMail to " + eMailAddress + "with content from file " + badFeedbackFile.getPath());
-        return null;
+        return RepeatStatus.FINISHED;
     }
 
     public void setBadFeedbackFile(File badFeedbackFile) {
