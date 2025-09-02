@@ -30,12 +30,8 @@
         <property name="targetMethod" value="move"/>
         <property name="arguments">
             <list>
-                <bean class="java.nio.file.Paths" factory-method="get">
-                    <constructor-arg value="resources/feedback.csv"/>
-                </bean>
-                <bean class="java.nio.file.Paths" factory-method="get">
-                    <constructor-arg value="resources/processed/feedback.csv"/>
-                </bean>
+                <value type="java.lang.String">resources/feedback.csv</value>
+                <value type="java.lang.String">resources/processed/feedback.csv</value>
             </list>
         </property>
     </bean>
@@ -59,25 +55,6 @@
     </bean>
 
     <!-- Define the steps -->
-    <batch:step id="moveFileStep">
-        <batch:tasklet ref="moveFileTasklet" transaction-manager="transactionManager"/>
-    </batch:step>
-
-    <batch:flow id="splitFlow">
-        <batch:split id="split" task-executor="taskExecutor" next="moveFileStep">
-            <batch:flow>
-                <batch:step id="sendEMailToSupportStep">
-                    <batch:tasklet ref="sendEMailToSupportTasklet" transaction-manager="transactionManager"/>
-                </batch:step>
-            </batch:flow>
-            <batch:flow>
-                <batch:step id="sendEMailToDevelopmentStep">
-                    <batch:tasklet ref="sendEMailToDevelopmentTasklet" transaction-manager="transactionManager"/>
-                </batch:step>
-            </batch:flow>
-        </batch:split>
-    </batch:flow>
-
     <!--task:executor id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor"/-->
     <task:executor id="taskExecutor"/>
 
@@ -86,6 +63,7 @@
         <batch:listeners>
             <batch:listener ref="jobCompletionNotificationListener"/>
         </batch:listeners>
+
         <batch:step id="processFeedbackStep">
             <batch:tasklet transaction-manager="transactionManager">
                 <batch:chunk reader="reader" processor="processor" writer="writer" commit-interval="3"/>
@@ -96,6 +74,23 @@
             <batch:next on="COMPLETED_WITH_BAD_FEEDBACK" to="splitFlow"/>
             <batch:next on="COMPLETED" to="moveFileStep"/>
         </batch:step>
+
+        <batch:step id="moveFileStep">
+            <batch:tasklet ref="moveFileTasklet" transaction-manager="transactionManager"/>
+        </batch:step>
+
+        <batch:split id="splitFlow" task-executor="taskExecutor" next="moveFileStep">
+            <batch:flow>
+                <batch:step id="sendEMailToSupportStep" >
+                    <batch:tasklet ref="sendEMailToSupportTasklet" transaction-manager="transactionManager"/>
+                </batch:step>
+            </batch:flow>
+            <batch:flow>
+                <batch:step id="sendEMailToDevelopmentStep" >
+                    <batch:tasklet ref="sendEMailToDevelopmentTasklet" transaction-manager="transactionManager"/>
+                </batch:step>
+            </batch:flow>
+        </batch:split>
     </batch:job>
 
 </beans>

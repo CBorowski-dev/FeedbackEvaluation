@@ -17,7 +17,6 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.io.File;
-import java.nio.file.Paths;
 
 @Configuration
 public class BatchConfiguration {
@@ -40,7 +39,7 @@ public class BatchConfiguration {
 
         adapter.setTargetObject(new FilesWrapper());
         adapter.setTargetMethod("move");
-        adapter.setArguments(new Object[]{Paths.get("resources/feedback.csv"), Paths.get("resources/processed/feedback.csv")});
+        adapter.setArguments(new Object[]{"resources/feedback.csv", "resources/processed/feedback.csv"});
 
         return adapter;
     }
