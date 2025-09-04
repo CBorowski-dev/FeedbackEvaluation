@@ -54,11 +54,10 @@
         <property name="eMailAddress" value="product.development@itemis.com"/>
     </bean>
 
-    <!-- Define the steps -->
-    <!--task:executor id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor"/-->
+    <!-- Define the task executor -->
     <task:executor id="taskExecutor"/>
 
-    <!-- Define the job and its flow -->
+    <!-- Define the job, steps and its flows -->
     <batch:job id="feedbackJob" job-repository="jobRepository">
         <batch:listeners>
             <batch:listener ref="jobCompletionNotificationListener"/>
