@@ -22,7 +22,7 @@ public class FeedbackJobScheduler {
     @Autowired
     private Job feedbackJob;
 
-    @Scheduled(cron = "0 */1 * * * *") // Runs the job every 2 minutes
+    @Scheduled(cron = "0 */1 * * * *") // Runs the job every minute
     public void scheduleMyBatchJob() throws JobParametersInvalidException, JobExecutionAlreadyRunningException, JobRestartException, JobInstanceAlreadyCompleteException {
         System.out.println(" ============ start ===========");
         jobLauncher.run(feedbackJob, new JobParametersBuilder().addDate("timestamp", new Date()).toJobParameters());

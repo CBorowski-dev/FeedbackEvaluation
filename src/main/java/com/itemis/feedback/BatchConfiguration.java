@@ -23,7 +23,7 @@ public class BatchConfiguration {
 
     @Bean
     public Step processFeedbackStep(JobRepository jobRepository, DataSourceTransactionManager transactionManager,
-                                    FeedbackItemReader reader, FeedbackProcessor processor, FeedbackItemWriter writer, BadFeedbackStepExecutionListener listener) {
+                                    FeedbackItemReader reader, FeedbackItemProcessor processor, FeedbackItemWriter writer, BadFeedbackStepExecutionListener listener) {
         return new StepBuilder("processFeedbackStep", jobRepository)
                 .<Feedback, Feedback>chunk(3, transactionManager)
                 .reader(reader)

@@ -18,7 +18,7 @@
 
     <!-- Define the reader, processor, and writer beans with their dependencies -->
     <bean id="reader" class="com.itemis.feedback.FeedbackItemReader"/>
-    <bean id="processor" class="com.itemis.feedback.FeedbackProcessor"/>
+    <bean id="processor" class="com.itemis.feedback.FeedbackItemProcessor"/>
     <bean id="writer" class="com.itemis.feedback.FeedbackItemWriter"/>
     <bean id="jobCompletionNotificationListener" class="com.itemis.feedback.JobCompletionNotificationListener"/>
     <bean id="badFeedbackStepExecutionListener" class="com.itemis.feedback.BadFeedbackStepExecutionListener"/>

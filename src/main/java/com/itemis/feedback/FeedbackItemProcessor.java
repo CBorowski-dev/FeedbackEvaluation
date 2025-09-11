@@ -6,9 +6,9 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class FeedbackProcessor implements ItemProcessor<Feedback, Feedback> {
+public class FeedbackItemProcessor implements ItemProcessor<Feedback, Feedback> {
 
-    Logger logger = LoggerFactory.getLogger(FeedbackProcessor.class);
+    Logger logger = LoggerFactory.getLogger(FeedbackItemProcessor.class);
 
     /**
      *
